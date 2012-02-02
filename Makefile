@@ -1,3 +1,18 @@
+# ------------------------------------------------------ #
+# Makefile for the "Quake II Map Tools"                  #
+#                                                        #
+# Just type "make" to compile the                        #
+#  - bspinfo                                             #
+#  - qbsp3                                               #
+#  - qdata                                               #
+#  - qrad3                                               #
+#  - qvis3                                               #
+#                                                        #
+# Platforms:                                             #
+#  - Linux                                               #
+#  - FreeBSD                                             #
+# ------------------------------------------------------ #
+
 # Check the OS type
 OSTYPE := $(shell uname -s)
 
@@ -80,20 +95,15 @@ clean:
 	${Q}rm -Rf build release
  
 # ----------
-
-# qdata
-qdata:
-	@echo '===> Building qdata'
-	${Q}mkdir -p release
-	$(MAKE) release/qdata
-
-build/qdata/%.o: %.c
+ 
+# common stuff
+build/common/%.o: %.c
 	@echo '===> CC $<'
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
-
+ 
 # ----------
-
+ 
 # bspinfo
 bspinfo:
 	@echo '===> Building bspinfo'
@@ -119,7 +129,20 @@ build/qbsp3/%.o: %.c
 	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
   
 # ----------
+ 
+# qdata
+qdata:
+	@echo '===> Building qdata'
+	${Q}mkdir -p release
+	$(MAKE) release/qdata
 
+build/qdata/%.o: %.c
+	@echo '===> CC $<'
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+                         
 # qrad3
 qrad3:
 	@echo '===> Building qrad3'
@@ -144,14 +167,6 @@ build/qvis3/%.o: %.c
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
      
-# ----------
-
-# common stuff
-build/common/%.o: %.c
-	@echo '===> CC $<'
-	${Q}mkdir -p $(@D)
-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
- 
 # ----------
 
 # Common objects
@@ -186,7 +201,16 @@ QBSP_OBJS_ = \
 		src/qbsp3/textures.o \
 		src/qbsp3/tree.o \
 		src/qbsp3/writebsp.o
-
+ 
+# Used by qdata
+QDATA_OBJS_ = \
+		src/qdata/images.o \
+        src/qdata/models.o \
+		src/qdata/qdata.o \
+		src/qdata/sprites.o \
+		src/qdata/tables.o \
+		src/qdata/video.o
+ 
 # Used by qrad3
 QRAD_OBJS_ = \
 		src/qrad3/lightmap.o \
@@ -199,24 +223,15 @@ QVIS_OBJS_ = \
 		src/qvis3/flow.o \
 		src/qvis3/qvis3.o
 
-# Used by qdata
-QDATA_OBJS_ = \
-		src/qdata/images.o \
-        src/qdata/models.o \
-		src/qdata/qdata.o \
-		src/qdata/sprites.o \
-		src/qdata/tables.o \
-		src/qdata/video.o
-
 # ----------
 
 # Rewrite pathes to our object directory
 COMMON_OBJS = $(patsubst %,build/common/%,$(COMMON_OBJS_))
 BSPINFO_OBJS = $(patsubst %,build/bspinfo/%,$(BSPINFO_OBJS_))
 QBSP_OBJS = $(patsubst %,build/qbsp3/%,$(QBSP_OBJS_))
+QDATA_OBJS = $(patsubst %,build/qdata/%,$(QDATA_OBJS_))
 QRAD_OBJS = $(patsubst %,build/qrad3/%,$(QRAD_OBJS_))
 QVIS_OBJS = $(patsubst %,build/qvis3/%,$(QVIS_OBJS_))
-QDATA_OBJS = $(patsubst %,build/qdata/%,$(QDATA_OBJS_))
 
 # ----------
 
@@ -224,25 +239,20 @@ QDATA_OBJS = $(patsubst %,build/qdata/%,$(QDATA_OBJS_))
 COMMON_DEPS= $(COMMON_OBJS:.o=.d)
 BSPINFO_DEPS= $(BSPINFO_OBJS:.o=.d)
 QBSP_DEPS= $(QBSP_OBJS:.o=.d)
+QDATA_DEPS= $(QDATA_OBJS:.o=.d)
 QRAD_DEPS= $(QRAD_OBJS:.o=.d)
 QVIS_DEPS= $(QVIS_OBJS:.o=.d)
-QDATA_DEPS= $(QDATA_OBJS:.o=.d)
 
 # ----------
 
 -include $(COMMON_DEPS) 
 -include $(BSPINFO_DEPS) 
 -include $(QBSP_DEPS) 
+-include $(QDATA_DEPS) 
 -include $(QRAD_DEPS) 
 -include $(QVIS_DEPS) 
--include $(QDATA_DEPS) 
 
 # ----------
-
-# release/qdata
-release/qdata : $(COMMON_OBJS) $(QDATA_OBJS) 
-	@echo '===> LD $@'
-	${Q}$(CC) $(COMMON_OBJS) $(QDATA_OBJS) $(LDFLAGS) -o $@
 
 # release/bspinfo
 release/bspinfo : $(COMMON_OBJS) $(BSPINFO_OBJS) 
@@ -253,6 +263,11 @@ release/bspinfo : $(COMMON_OBJS) $(BSPINFO_OBJS)
 release/qbsp3 : $(COMMON_OBJS) $(QBSP_OBJS) 
 	@echo '===> LD $@'
 	${Q}$(CC) $(COMMON_OBJS) $(QBSP_OBJS) $(LDFLAGS) -o $@
+ 
+# release/qdata
+release/qdata : $(COMMON_OBJS) $(QDATA_OBJS) 
+	@echo '===> LD $@'
+	${Q}$(CC) $(COMMON_OBJS) $(QDATA_OBJS) $(LDFLAGS) -o $@
   
 # release/qrad3
 release/qrad3 : $(COMMON_OBJS) $(QRAD_OBJS) 
