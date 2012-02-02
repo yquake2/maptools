@@ -70,7 +70,7 @@ endif
 # ---------- 
 
 # Builds everything
-all: qdata
+all: bspinfo qdata
 	
 # ---------- 
 
@@ -94,6 +94,19 @@ build/qdata/%.o: %.c
 
 # ----------
 
+# bspinfo
+bspinfo:
+	@echo '===> Building bspinfo'
+	${Q}mkdir -p release
+	$(MAKE) release/bspinfo
+
+build/bspinfo/%.o: %.c
+	@echo '===> CC $<'
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+ 
+# ----------
+
 # common stuff
 build/common/%.o: %.c
 	@echo '===> CC $<'
@@ -115,6 +128,10 @@ COMMON_OBJS_ = \
 		src/common/threads.o \
 		src/common/trilib.o
 
+# Used by bspinfo
+BSPINFO_OBJS_ = \
+		src/bspinfo/bspinfo.o
+
 # Used by qdata
 QDATA_OBJS_ = \
 		src/qdata/images.o \
@@ -128,17 +145,20 @@ QDATA_OBJS_ = \
 
 # Rewrite pathes to our object directory
 COMMON_OBJS = $(patsubst %,build/common/%,$(COMMON_OBJS_))
+BSPINFO_OBJS = $(patsubst %,build/common/%,$(BSPINFO_OBJS_))
 QDATA_OBJS = $(patsubst %,build/qdata/%,$(QDATA_OBJS_))
 
 # ----------
 
 # Generate header dependencies
 COMMON_DEPS= $(COMMON_OBJS:.o=.d)
+BSPINFO_DEPS= $(BSPINFO_OBJS:.o=.d)
 QDATA_DEPS= $(QDATA_OBJS:.o=.d)
 
 # ----------
 
 -include $(COMMON_DEPS) 
+-include $(BSPINFO_DEPS) 
 -include $(QDATA_DEPS) 
 
 # ----------
@@ -148,3 +168,8 @@ release/qdata : $(COMMON_OBJS) $(QDATA_OBJS)
 	@echo '===> LD $@'
 	${Q}$(CC) $(COMMON_OBJS) $(QDATA_OBJS) $(LDFLAGS) -o $@
 
+# release/bspinfo
+release/bspinfo : $(COMMON_OBJS) $(BSPINFO_OBJS) 
+	@echo '===> LD $@'
+	${Q}$(CC) $(COMMON_OBJS) $(BSPINFO_OBJS) $(LDFLAGS) -o $@
+ 
