@@ -42,10 +42,19 @@ CFLAGS := -O2 -fno-strict-aliasing -fomit-frame-pointer \
 
 # Base include path.
 ifeq ($(OSTYPE),Linux)
-INCLUDE := -I/usr/include -I./common
+INCLUDE := -I./src/common
 else ifeq ($(OSTYPE),FreeBSD)
-INCLUDE := -I/usr/local/include -I./common
+INCLUDE := -I./src/common
 endif
+
+# ----------
+
+# Base LDFLAGS.
+ifeq ($(OSTYPE),Linux)
+LDFLAGS := -L/usr/lib -lm
+else ifeq ($(OSTYPE),FreeBSD)
+LDFLAGS := -L/usr/local/lib -lm
+endif 
 
 # ----------
 
@@ -61,7 +70,7 @@ endif
 # ---------- 
 
 # Builds everything
-all: qdata1
+all: qdata
 	
 # ---------- 
 
@@ -73,7 +82,7 @@ clean:
 # ----------
 
 # qdata
-qdata1:
+qdata:
 	@echo '===> Building qdata'
 	${Q}mkdir -p release
 	$(MAKE) release/qdata
@@ -85,39 +94,57 @@ build/qdata/%.o: %.c
 
 # ----------
 
+# common stuff
+build/common/%.o: %.c
+	@echo '===> CC $<'
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+ 
+# ----------
+
+# Common objects
+COMMON_OBJS_ = \
+		src/common/bspfile.o \
+	   	src/common/cmdlib.o \
+		src/common/l3dslib.o \
+		src/common/lbmlib.o \
+		src/common/mathlib.o \
+		src/common/mdfour.o \
+		src/common/polylib.o \
+		src/common/scriplib.o \
+		src/common/threads.o \
+		src/common/trilib.o
+
 # Used by qdata
 QDATA_OBJS_ = \
-		common/cmdlib.o \
-		common/scriplib.o \
-		common/lbmlib.o \
-		common/mathlib.o \
-		common/trilib.o \
-		common/l3dslib.o \
-		common/threads.o \
-		qdata/qdata.o \
-        qdata/models.o \
-		qdata/sprites.o \
-		qdata/images.o \
-		qdata/tables.o
+		src/qdata/images.o \
+        src/qdata/models.o \
+		src/qdata/qdata.o \
+		src/qdata/sprites.o \
+		src/qdata/tables.o \
+		src/qdata/video.o
 
 # ----------
 
 # Rewrite pathes to our object directory
+COMMON_OBJS = $(patsubst %,build/common/%,$(COMMON_OBJS_))
 QDATA_OBJS = $(patsubst %,build/qdata/%,$(QDATA_OBJS_))
 
 # ----------
 
 # Generate header dependencies
+COMMON_DEPS= $(COMMON_OBJS:.o=.d)
 QDATA_DEPS= $(QDATA_OBJS:.o=.d)
 
 # ----------
 
+-include $(COMMON_DEPS) 
 -include $(QDATA_DEPS) 
 
 # ----------
 
 # release/qdata
-release/qdata : $(QDATA_OBJS) 
+release/qdata : $(COMMON_OBJS) $(QDATA_OBJS) 
 	@echo '===> LD $@'
-	${Q}$(CC) $(QDATA_OBJS) $(LDFLAGS) -o $@
+	${Q}$(CC) $(COMMON_OBJS) $(QDATA_OBJS) $(LDFLAGS) -o $@
 
