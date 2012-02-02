@@ -112,11 +112,11 @@ void FreeStackWinding (winding_t *w, pstack_t *stack)
 
 /*
 ==============
-ChopWinding
+ChopWindingVis
 
 ==============
 */
-winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
+winding_t	*ChopWindingVis (winding_t *in, pstack_t *stack, plane_t *split)
 {
 	vec_t	dists[128];
 	int		sides[128];
@@ -361,7 +361,7 @@ winding_t	*ClipToSeperators (winding_t *source, winding_t *pass, winding_t *targ
 		//
 		// clip target by the seperating plane
 		//
-			target = ChopWinding (target, stack, &plane);
+			target = ChopWindingVis (target, stack, &plane);
 			if (!target)
 				return NULL;		// target is not visible
 		}
@@ -467,13 +467,13 @@ float d;
 	}
 	else	
 	{
-		stack.pass = ChopWinding (p->winding, &stack, &thread->pstack_head.portalplane);
+		stack.pass = ChopWindingVis (p->winding, &stack, &thread->pstack_head.portalplane);
 		if (!stack.pass)
 			continue;
 	}
 }
 #else
-		stack.pass = ChopWinding (p->winding, &stack, &thread->pstack_head.portalplane);
+		stack.pass = ChopWindingVis (p->winding, &stack, &thread->pstack_head.portalplane);
 		if (!stack.pass)
 			continue;
 #endif
@@ -495,13 +495,13 @@ float d;
 	}
 	else	
 	{
-		stack.source = ChopWinding (prevstack->source, &stack, &backplane);
+		stack.source = ChopWindingVis (prevstack->source, &stack, &backplane);
 		if (!stack.source)
 			continue;
 	}
 }
 #else
-		stack.source = ChopWinding (prevstack->source, &stack, &backplane);
+		stack.source = ChopWindingVis (prevstack->source, &stack, &backplane);
 		if (!stack.source)
 			continue;
 #endif
