@@ -1,0 +1,4 @@
+Those are the Quake II map tools, fixed to work on unixoid platform like
+FreeBSD and Linux. ATTENTION: This code is totaly untested and may not
+work! Do not complain if there are any problems! Patches (or even better
+pull requests) and success reports are welcome. :)
