@@ -247,7 +247,7 @@ void PackDirectory_r (char *dir)
 #ifdef NeXT
 #include <sys/dir.h>
 #else
-#include <sys/dirent.h>
+#include <dirent.h>
 #endif
 
 void PackDirectory_r (char *dir)
