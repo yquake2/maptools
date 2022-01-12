@@ -55,6 +55,8 @@ ifeq ($(OSTYPE),Linux)
 INCLUDE := -I./src/common
 else ifeq ($(OSTYPE),FreeBSD)
 INCLUDE := -I./src/common
+else ifeq ($(OSTYPE),Darwin)
+INCLUDE := -I./src/common
 endif
 
 # ----------
@@ -64,6 +66,8 @@ ifeq ($(OSTYPE),Linux)
 LDFLAGS := -L/usr/lib -lm
 else ifeq ($(OSTYPE),FreeBSD)
 LDFLAGS := -L/usr/local/lib -lm
+else ifeq ($(OSTYPE),Darwin)
+LDFLAGS := -L/usr/lib -lm
 endif 
 
 # ----------
