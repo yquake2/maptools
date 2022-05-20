@@ -23,7 +23,9 @@ ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/amd64/x86_64/)
 # (You'll need some #ifdef for your unsupported  plattform!)
 ifneq ($(ARCH),i386)
 ifneq ($(ARCH),x86_64)
+ifneq ($(ARCH),arm64)
 $(error arch $(ARCH) is currently not supported)
+endif
 endif
 endif
 
@@ -55,6 +57,8 @@ ifeq ($(OSTYPE),Linux)
 INCLUDE := -I./src/common
 else ifeq ($(OSTYPE),FreeBSD)
 INCLUDE := -I./src/common
+else ifeq ($(OSTYPE),Darwin)
+ INCLUDE := -I./src/common
 endif
 
 # ----------
@@ -64,6 +68,8 @@ ifeq ($(OSTYPE),Linux)
 LDFLAGS := -L/usr/lib -lm
 else ifeq ($(OSTYPE),FreeBSD)
 LDFLAGS := -L/usr/local/lib -lm
+else ifeq ($(OSTYPE),Darwin)
+ LDFLAGS := -L/usr/lib -lm
 endif 
 
 # ----------

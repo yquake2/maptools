@@ -85,7 +85,7 @@ void MakeTnodes (dmodel_t *bm)
 {
 	// 32 byte align the structs
 	tnodes = malloc( (numnodes+1) * sizeof(tnode_t));
-	tnodes = (tnode_t *)(((int)tnodes + 31)&~31);
+  memset(tnodes, 1, sizeof tnodes);
 	tnode_p = tnodes;
 
 	MakeTnode (0);
