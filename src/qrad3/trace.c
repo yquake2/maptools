@@ -84,8 +84,7 @@ Loads the node structure out of a .bsp file to be used for light occlusion
 void MakeTnodes (dmodel_t *bm)
 {
 	// 32 byte align the structs
-	tnodes = malloc( (numnodes+1) * sizeof(tnode_t));
-  memset(tnodes, 1, sizeof tnodes);
+	tnodes = aligned_alloc(32,(numnodes+1) * sizeof(tnode_t));
 	tnode_p = tnodes;
 
 	MakeTnode (0);
